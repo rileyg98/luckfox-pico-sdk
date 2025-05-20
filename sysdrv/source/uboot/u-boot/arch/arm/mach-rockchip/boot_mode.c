@@ -202,6 +202,15 @@ int rockchip_get_boot_mode(void)
 			printf("boot mode: watchdog\n");
 			boot_mode[PL] = BOOT_MODE_WATCHDOG;
 			break;
+		case BOOT_QUIESCENT:
+			printf("boot mode: quiescent\n");
+			boot_mode[PL] = BOOT_MODE_QUIESCENT;
+			break;
+		case BOOT_TO_UBOOT:
+			printf("boot mode: uboot\n");
+			boot_mode[PL] = BOOT_MODE_UBOOT_TERMINAL;
+			clear_boot_reg = 1;
+			break;
 		default:
 			printf("boot mode: None\n");
 			boot_mode[PL] = BOOT_MODE_UNDEFINE;
@@ -226,6 +235,8 @@ int rockchip_get_boot_mode(void)
 int setup_boot_mode(void)
 {
 	char env_preboot[256] = {0};
+
+	env_set("cli", NULL); /* removed by default */
 
 	switch (rockchip_get_boot_mode()) {
 	case BOOT_MODE_BOOTLOADER:
@@ -258,6 +269,10 @@ int setup_boot_mode(void)
 	case BOOT_MODE_CHARGING:
 		printf("enter charging!\n");
 		env_set("preboot", "setenv preboot; charge");
+		break;
+	case BOOT_MODE_UBOOT_TERMINAL:
+		printf("enter uboot!\n");
+		env_set("cli", "yes");
 		break;
 	}
 
